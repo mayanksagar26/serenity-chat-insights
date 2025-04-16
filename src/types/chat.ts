@@ -17,3 +17,4 @@ export interface ChatState {
   isProcessing: boolean;
   questions: ChatQuestion[];
 }
+

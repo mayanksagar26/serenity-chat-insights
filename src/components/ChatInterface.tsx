@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Send } from "lucide-react";
 import ChatMessage from "./ChatMessage";
+import PersonaSelector from "./PersonaSelector";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { PersonaType } from "@/types/chat";
@@ -47,6 +48,8 @@ const ChatInterface: React.FC = () => {
   const [input, setInput] = useState<string>("");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showPersonaSelector, setShowPersonaSelector] = useState(false);
+  const [selectedPersona, setSelectedPersona] = useState<PersonaType | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -78,6 +81,21 @@ const ChatInterface: React.FC = () => {
     return PERSONAS.stressed;
   };
 
+  const handlePersonaSelect = (type: PersonaType) => {
+    setSelectedPersona(type);
+    setShowPersonaSelector(false);
+    // Add recommended persona message
+    setMessages(prev => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        content: "Based on our conversation, here's a personalized plan for you:",
+        isUser: false,
+        persona: PERSONAS[type]
+      }
+    ]);
+  };
+
   const handleSendMessage = async () => {
     if (input.trim() === "") return;
 
@@ -86,35 +104,42 @@ const ChatInterface: React.FC = () => {
     setInput("");
 
     if (currentQuestionIndex < INITIAL_QUESTIONS.length - 1) {
-      setIsProcessing(true);
       setTimeout(() => {
-        const persona = determinePersona(input);
         setMessages(prev => [
           ...prev,
           {
             id: Date.now().toString(),
             content: INITIAL_QUESTIONS[currentQuestionIndex + 1],
             isUser: false,
-            persona
           }
         ]);
         setCurrentQuestionIndex(prev => prev + 1);
-        setIsProcessing(false);
-      }, 1500);
+      }, 1000);
     } else if (currentQuestionIndex === INITIAL_QUESTIONS.length - 1) {
       setIsProcessing(true);
       setTimeout(() => {
-        const persona = determinePersona(input);
+        const recommendedPersona = determinePersona(input);
         setMessages(prev => [
           ...prev,
           {
             id: Date.now().toString(),
             content: "Thank you for sharing. I'm processing your responses to better understand how I can support you...",
             isUser: false,
-            persona
           }
         ]);
-        setIsProcessing(false);
+        setTimeout(() => {
+          setMessages(prev => [
+            ...prev,
+            {
+              id: Date.now().toString(),
+              content: "Based on our conversation, I recommend this persona for you. You can also choose a different one that resonates more with how you're feeling:",
+              isUser: false,
+              persona: recommendedPersona
+            }
+          ]);
+          setShowPersonaSelector(true);
+          setIsProcessing(false);
+        }, 2000);
       }, 1500);
     }
   };
@@ -138,6 +163,13 @@ const ChatInterface: React.FC = () => {
               persona={message.persona}
             />
           ))}
+          {showPersonaSelector && (
+            <PersonaSelector
+              personas={PERSONAS}
+              onSelect={handlePersonaSelect}
+              recommended={determinePersona(messages[messages.length - 2]?.content || '')}
+            />
+          )}
           <div ref={messagesEndRef} />
         </div>
       </div>
@@ -150,12 +182,12 @@ const ChatInterface: React.FC = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyPress}
             placeholder={isProcessing ? "Processing..." : "Type your message..."}
-            disabled={isProcessing}
+            disabled={isProcessing || showPersonaSelector}
             className="flex-1 mr-2 rounded-full"
           />
           <Button 
             onClick={handleSendMessage}
-            disabled={isProcessing}
+            disabled={isProcessing || showPersonaSelector}
             size="icon" 
             className="rounded-full"
           >
