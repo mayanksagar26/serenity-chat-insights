@@ -52,6 +52,16 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				serenity: {
+					lavender: '#9b87f5',
+					teal: '#6BBAA7',
+					peach: '#FDE1D3',
+					blue: '#D3E4FD',
+					background: '#F1F0FB',
+					dark: '#1A1F2C',
+					light: '#F8F9FE',
+					muted: '#8E9196',
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
