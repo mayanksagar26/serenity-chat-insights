@@ -5,6 +5,7 @@ export interface Persona {
   type: PersonaType;
   oneLiner: string;
   image: string;
+  nextSteps: string[];
 }
 
 export interface ChatQuestion {
@@ -17,4 +18,3 @@ export interface ChatState {
   isProcessing: boolean;
   questions: ChatQuestion[];
 }
-

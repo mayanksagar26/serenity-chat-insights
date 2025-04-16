@@ -27,19 +27,39 @@ const INITIAL_QUESTIONS = [
 const PERSONAS = {
   focused: {
     type: 'focused' as PersonaType,
-    oneLiner: "Feeling sharp and ready to tackle any challenge today."
+    oneLiner: "Feeling sharp and ready to tackle any challenge today.",
+    nextSteps: [
+      "Set clear daily goals and prioritize tasks",
+      "Take short mindfulness breaks to maintain focus",
+      "Review productivity tips and breathing exercises"
+    ]
   },
   confused: {
     type: 'confused' as PersonaType,
-    oneLiner: "Trying to find my way through the fog of tasks and thoughts."
+    oneLiner: "Trying to find my way through the fog of tasks and thoughts.",
+    nextSteps: [
+      "Break tasks into smaller, manageable steps",
+      "Take time for guided reflection or journaling",
+      "Schedule a short break or talk to a colleague"
+    ]
   },
   low: {
     type: 'low' as PersonaType,
-    oneLiner: "Carrying a bit of a cloud today, hoping for some sunshine soon."
+    oneLiner: "Carrying a bit of a cloud today, hoping for some sunshine soon.",
+    nextSteps: [
+      "Express feelings through journaling or conversation",
+      "Try a calming meditation or breathing exercise",
+      "Take a short walk or light physical activity"
+    ]
   },
   stressed: {
     type: 'stressed' as PersonaType,
-    oneLiner: "Under pressure but holding on, looking for ways to bounce back."
+    oneLiner: "Under pressure but holding on, looking for ways to bounce back.",
+    nextSteps: [
+      "Practice progressive muscle relaxation",
+      "Review and delegate tasks if possible",
+      "Read motivational quotes and resilience tips"
+    ]
   }
 };
 
