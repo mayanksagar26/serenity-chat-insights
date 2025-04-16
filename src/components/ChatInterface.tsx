@@ -2,63 +2,121 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Send } from "lucide-react";
 import ChatMessage from "./ChatMessage";
-import { getChatbotResponse } from "../data/mockData";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { PersonaType } from "@/types/chat";
 
 interface Message {
   id: string;
   content: string;
   isUser: boolean;
+  persona?: {
+    type: PersonaType;
+    oneLiner: string;
+  };
 }
+
+const INITIAL_QUESTIONS = [
+  "How are you feeling today?",
+  "What's contributing to your current state of mind?",
+  "Have your work responsibilities been affecting your mood?",
+  "How has your energy level been lately?",
+];
+
+const PERSONAS = {
+  focused: {
+    type: 'focused' as PersonaType,
+    oneLiner: "Feeling sharp and ready to tackle any challenge today."
+  },
+  confused: {
+    type: 'confused' as PersonaType,
+    oneLiner: "Trying to find my way through the fog of tasks and thoughts."
+  },
+  low: {
+    type: 'low' as PersonaType,
+    oneLiner: "Carrying a bit of a cloud today, hoping for some sunshine soon."
+  },
+  stressed: {
+    type: 'stressed' as PersonaType,
+    oneLiner: "Under pressure but holding on, looking for ways to bounce back."
+  }
+};
 
 const ChatInterface: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>("");
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Initial greeting when component mounts
   useEffect(() => {
     setTimeout(() => {
-      setMessages([
-        {
-          id: Date.now().toString(),
-          content: "How are you feeling today?",
-          isUser: false,
-        },
-      ]);
+      setMessages([{
+        id: Date.now().toString(),
+        content: INITIAL_QUESTIONS[0],
+        isUser: false
+      }]);
     }, 1000);
   }, []);
 
-  const handleSendMessage = () => {
+  const determinePersona = (input: string): typeof PERSONAS[keyof typeof PERSONAS] => {
+    const lowercaseInput = input.toLowerCase();
+    if (lowercaseInput.includes('good') || lowercaseInput.includes('great') || lowercaseInput.includes('productive')) {
+      return PERSONAS.focused;
+    }
+    if (lowercaseInput.includes('confused') || lowercaseInput.includes('overwhelmed') || lowercaseInput.includes('uncertain')) {
+      return PERSONAS.confused;
+    }
+    if (lowercaseInput.includes('sad') || lowercaseInput.includes('down') || lowercaseInput.includes('tired')) {
+      return PERSONAS.low;
+    }
+    return PERSONAS.stressed;
+  };
+
+  const handleSendMessage = async () => {
     if (input.trim() === "") return;
 
-    // Add user message
     const userMessageId = Date.now().toString();
-    setMessages((prev) => [
-      ...prev,
-      { id: userMessageId, content: input, isUser: true },
-    ]);
+    setMessages(prev => [...prev, { id: userMessageId, content: input, isUser: true }]);
     setInput("");
 
-    // Simulate AI response with a small delay
-    setTimeout(() => {
-      const botResponse = getChatbotResponse(input);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          content: botResponse,
-          isUser: false,
-        },
-      ]);
-    }, 1000);
+    if (currentQuestionIndex < INITIAL_QUESTIONS.length - 1) {
+      setIsProcessing(true);
+      setTimeout(() => {
+        const persona = determinePersona(input);
+        setMessages(prev => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            content: INITIAL_QUESTIONS[currentQuestionIndex + 1],
+            isUser: false,
+            persona
+          }
+        ]);
+        setCurrentQuestionIndex(prev => prev + 1);
+        setIsProcessing(false);
+      }, 1500);
+    } else if (currentQuestionIndex === INITIAL_QUESTIONS.length - 1) {
+      setIsProcessing(true);
+      setTimeout(() => {
+        const persona = determinePersona(input);
+        setMessages(prev => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            content: "Thank you for sharing. I'm processing your responses to better understand how I can support you...",
+            isUser: false,
+            persona
+          }
+        ]);
+        setIsProcessing(false);
+      }, 1500);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -77,6 +135,7 @@ const ChatInterface: React.FC = () => {
               key={message.id}
               message={message.content}
               isUser={message.isUser}
+              persona={message.persona}
             />
           ))}
           <div ref={messagesEndRef} />
@@ -90,11 +149,13 @@ const ChatInterface: React.FC = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyPress}
-            placeholder="Type your message..."
+            placeholder={isProcessing ? "Processing..." : "Type your message..."}
+            disabled={isProcessing}
             className="flex-1 mr-2 rounded-full"
           />
           <Button 
-            onClick={handleSendMessage} 
+            onClick={handleSendMessage}
+            disabled={isProcessing}
             size="icon" 
             className="rounded-full"
           >

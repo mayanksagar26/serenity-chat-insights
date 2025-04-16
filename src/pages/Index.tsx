@@ -27,7 +27,7 @@ const Index: React.FC = () => {
             )}
           </Button>
           <h1 className="text-xl font-bold text-serenity-dark">
-            Serenity
+            CALMER
           </h1>
         </div>
         <div className="text-serenity-dark">
