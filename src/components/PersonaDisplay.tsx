@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 interface PersonaDisplayProps {
   type: PersonaType;
   oneLiner: string;
-  nextSteps?: string[];
+  nextSteps: string[];
 }
 
 const PersonaDisplay: React.FC<PersonaDisplayProps> = ({ type, oneLiner, nextSteps }) => {

@@ -14,6 +14,7 @@ interface Message {
   persona?: {
     type: PersonaType;
     oneLiner: string;
+    nextSteps?: string[];
   };
 }
 
@@ -104,14 +105,19 @@ const ChatInterface: React.FC = () => {
   const handlePersonaSelect = (type: PersonaType) => {
     setSelectedPersona(type);
     setShowPersonaSelector(false);
-    // Add recommended persona message
+    
+    // Add recommended persona message with next steps
     setMessages(prev => [
       ...prev,
       {
         id: Date.now().toString(),
         content: "Based on our conversation, here's a personalized plan for you:",
         isUser: false,
-        persona: PERSONAS[type]
+        persona: {
+          type: type,
+          oneLiner: PERSONAS[type].oneLiner,
+          nextSteps: PERSONAS[type].nextSteps
+        }
       }
     ]);
   };

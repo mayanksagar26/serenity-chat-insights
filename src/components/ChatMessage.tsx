@@ -9,6 +9,7 @@ interface ChatMessageProps {
   persona?: {
     type: PersonaType;
     oneLiner: string;
+    nextSteps?: string[];
   };
 }
 
@@ -31,7 +32,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isUser, persona }) =
         </div>
       </div>
       {!isUser && persona && (
-        <PersonaDisplay type={persona.type} oneLiner={persona.oneLiner} />
+        <PersonaDisplay 
+          type={persona.type} 
+          oneLiner={persona.oneLiner} 
+          nextSteps={persona.nextSteps || []}
+        />
       )}
     </div>
   );
